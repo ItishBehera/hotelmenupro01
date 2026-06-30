@@ -1,0 +1,70 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+  {
+    "source": "/api/super-admin/login",
+    "function": "superAdminLogin"
+  },
+  {
+    "source": "/api/super-admin/me",
+    "function": "superAdminMe"
+  },
+  {
+    "source": "/api/super-admin/logout",
+    "function": "superAdminLogout"
+  },
+  {
+    "source": "/api/super-admin/dashboard-data",
+    "function": "superAdminDashboardData"
+  },
+  {
+    "source": "/super-admin/login",
+    "destination": "/super-admin/login/index.html"
+  },
+  {
+    "source": "/super-admin/login/**",
+    "destination": "/super-admin/login/index.html"
+  },
+  {
+    "source": "/super-admin/dashboard",
+    "destination": "/super-admin/dashboard/index.html"
+  },
+  {
+    "source": "/super-admin/dashboard/**",
+    "destination": "/super-admin/dashboard/index.html"
+  },
+  {
+    "source": "/dashboard/**",
+    "destination": "/dashboard/index.html"
+  },
+  {
+    "source": "/menu/**",
+    "destination": "/menu/index.html"
+  },
+  {
+    "source": "**",
+    "destination": "/index.html"
+  }
+]
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ]
+}

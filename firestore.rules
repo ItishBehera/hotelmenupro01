@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- Helpers ----------
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userExists() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function myRole() {
+      return userExists() ? userDoc().data.role : null;
+    }
+
+    function myHotel() {
+      return userExists() ? userDoc().data.hotelSlug : null;
+    }
+
+    function isAdmin(hotelSlug) {
+      return userExists()
+        && myRole() == "admin"
+        && myHotel() == hotelSlug;
+    }
+
+    function isKitchen(hotelSlug) {
+      return userExists()
+        && myRole() == "kitchen"
+        && myHotel() == hotelSlug;
+    }
+
+    function isStaff(hotelSlug) {
+      return isAdmin(hotelSlug) || isKitchen(hotelSlug);
+    }
+
+    function kitchenOrderUpdateOnly() {
+      return request.resource.data.diff(resource.data).changedKeys()
+        .hasOnly(["status", "confirmedAt", "completedAt"]);
+    }
+
+    // ---------- USERS ----------
+    match /users/{uid} {
+
+      // ✅ Allow user creation during signup
+      allow create: if signedIn()
+        && request.auth.uid == uid;
+
+      allow read, update: if signedIn()
+        && request.auth.uid == uid;
+
+      allow delete: if false;
+    }
+
+    // ---------- HOTELS ----------
+    match /hotels/{hotelSlug} {
+
+      // Public can read hotel data
+      allow read: if true;
+
+      // ✅ Allow hotel creation during signup
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid;
+
+      // After signup only admin can modify
+      allow update: if isAdmin(hotelSlug);
+      allow delete: if false;
+
+      // ---------- MENU ITEMS ----------
+      match /menuItems/{itemId} {
+        allow read: if true;
+        allow create, update, delete: if isAdmin(hotelSlug);
+      }
+
+      // ---------- ORDERS ----------
+match /orders/{orderId} {
+
+  // ✅ Anyone can place order (same as before)
+  allow create: if signedIn()
+&& request.resource.data.customerUid == request.auth.uid;
+
+  // ✅ Staff can read all orders (same as before)
+  // ✅ Customer can read ONLY their own order (NEW)
+  allow read: if isStaff(hotelSlug)
+    || (signedIn() && resource.data.customerUid == request.auth.uid);
+
+  // ✅ Admin full control (same as before)
+  allow update, delete: if isAdmin(hotelSlug);
+
+  // ✅ Kitchen limited updates (same as before)
+  allow update: if isKitchen(hotelSlug)
+    && kitchenOrderUpdateOnly();
+}
+    }
+
+    // ---------- DEFAULT DENY ----------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,1789 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Menu</title>
+  <link rel="icon" href="/favicon.png?v=3">
+<link rel="shortcut icon" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/favicon.png?v=3">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .font-display {
+      font-family: 'Playfair Display', serif;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 53, 0.4); }
+      50% { box-shadow: 0 0 40px rgba(255, 107, 53, 0.8); }
+    }
+    
+    @keyframes slide-in {
+      from { transform: translateX(-100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fade-up {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    
+    .animate-float {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    .animate-pulse-glow {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    .animate-slide-in {
+      animation: slide-in 0.5s ease-out forwards;
+    }
+    
+    .animate-fade-up {
+      animation: fade-up 0.4s ease-out forwards;
+    }
+    
+    .shimmer-bg {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+    }
+    
+    .category-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .category-card:hover {
+      transform: translateY(-5px) scale(1.02);
+    }
+    
+    .category-card:active {
+      transform: scale(0.98);
+    }
+    
+    .veg-badge {
+      border: 2px solid #22c55e;
+    }
+    
+    .veg-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+    }
+    
+    .nonveg-badge {
+      border: 2px solid #ef4444;
+    }
+    
+    .nonveg-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+    }
+    
+    .special-tag {
+      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    }
+    
+    .cart-bounce {
+      animation: bounce 0.5s ease;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .scrollbar-hide {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50">
+  <div id="app" class="h-full w-full overflow-auto scrollbar-hide">
+    <!-- Plan Expired Overlay (Hidden by default) -->
+<div id="planExpiredOverlay" class="fixed inset-0 z-[9999] hidden">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+
+  <div class="relative min-h-screen flex items-start justify-center p-4 pt-20">
+    <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden border border-amber-200">
+      <!-- Hotel name banner -->
+      <div class="bg-gradient-to-r from-amber-600 to-orange-600 px-5 py-4">
+        <h2 id="expiredHotelName" class="text-white font-display text-2xl font-bold">
+          Hotel
+        </h2>
+      </div>
+
+      <div class="p-6 text-center">
+        <div class="text-6xl mb-3">⏳</div>
+        <p class="text-gray-900 font-semibold text-lg">
+          Sorry, menu is temporarily unavailable
+        </p>
+        <p class="text-gray-600 mt-2">
+          Please contact the hotel staff for assistance.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+    <!-- Header -->
+   <header class="sticky top-0 z-40 glass-effect border-b border-amber-200 px-4 py-3">
+    <div class="flex items-center justify-between max-w-lg mx-auto"><button id="backBtn" class="p-2 rounded-full hover:bg-amber-100 transition-colors hidden">
+      <svg class="w-6 h-6 text-amber-800" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg></button>
+     <h1 id="headerTitle" class="font-display text-xl font-bold text-amber-900"></h1>
+     <div class="w-10"></div>
+    </div>
+   </header><!-- Main Content -->
+   <main id="mainContent" class="pb-24 max-w-lg mx-auto"><!-- Home Screen -->
+    <div id="homeScreen" class="px-4 py-6">
+     <div class="text-center mb-8 animate-fade-up">
+      <p id="welcomeText" class="text-amber-700 mb-2">Welcome to our restaurant</p>
+      <h2 class="font-display text-3xl font-bold text-amber-900 mb-1">Explore Our Menu</h2>
+      <p class="text-amber-600 text-sm">Tap a category to begin</p>
+     </div><!-- Category Cards -->
+     <div class="grid grid-cols-2 gap-4"><!-- Breakfast -->
+      <div class="category-card bg-gradient-to-br from-yellow-400 to-amber-500 rounded-2xl p-5 cursor-pointer shadow-lg" onclick="selectCategory('breakfast')" style="animation-delay: 0.1s">
+       <div class="text-4xl mb-3 animate-float">
+        🍳
+       </div>
+       <h3 class="font-semibold text-white text-lg">Breakfast</h3>
+       <p class="text-yellow-100 text-xs mt-1">6 AM - 11 AM</p>
+      </div><!-- Lunch -->
+      <div class="category-card bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-5 cursor-pointer shadow-lg" onclick="selectCategory('lunch')" style="animation-delay: 0.2s">
+       <div class="text-4xl mb-3 animate-float" style="animation-delay: 0.5s">
+        🍛
+       </div>
+       <h3 class="font-semibold text-white text-lg">Lunch/Meals</h3>
+       <p class="text-orange-100 text-xs mt-1">11 AM - 4 PM</p>
+      </div><!-- Dinner -->
+      <div class="category-card bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl p-5 cursor-pointer shadow-lg" onclick="selectCategory('dinner')" style="animation-delay: 0.3s">
+       <div class="text-4xl mb-3 animate-float" style="animation-delay: 1s">
+        🍽️
+       </div>
+       <h3 class="font-semibold text-white text-lg">Dinner</h3>
+       <p class="text-purple-100 text-xs mt-1">6 PM - 11 PM</p>
+      </div><!-- Snacks -->
+      <div class="category-card bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl p-5 cursor-pointer shadow-lg" onclick="selectCategory('snacks')" style="animation-delay: 0.4s">
+       <div class="text-4xl mb-3 animate-float" style="animation-delay: 1.5s">
+        🍿
+       </div>
+       <h3 class="font-semibold text-white text-lg">Snacks</h3>
+       <p class="text-green-100 text-xs mt-1">All Day</p>
+      </div><!-- Drinks - Full Width -->
+      <div class="category-card col-span-2 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-2xl p-5 cursor-pointer shadow-lg" onclick="selectCategory('drinks')" style="animation-delay: 0.5s">
+       <div class="flex items-center justify-between">
+        <div>
+         <h3 class="font-semibold text-white text-lg">Drinks &amp; Beverages</h3>
+         <p class="text-cyan-100 text-xs mt-1">Refreshments for every mood</p>
+        </div>
+        <div class="text-5xl animate-float" style="animation-delay: 2s">
+         🍹
+        </div>
+       </div>
+      </div>
+     </div><!-- Your Order Banner -->
+     <div id="yourOrderBanner" class="mt-6 bg-gradient-to-r from-amber-600 to-orange-600 rounded-2xl p-4 relative overflow-hidden cursor-pointer hover:shadow-lg transition-shadow" onclick="viewRecentOrder()">
+      <div class="absolute inset-0 shimmer-bg"></div>
+      <div class="relative flex items-center gap-4">
+       <div class="text-4xl">
+        📋
+       </div>
+       <div class="flex-1">
+        <p class="text-amber-100 text-xs font-medium">YOUR ORDER</p>
+        <h3 id="orderBannerTitle" class="text-white font-bold">No recent orders found</h3>
+        <p id="orderBannerPrice" class="text-amber-100 text-sm"></p>
+       </div>
+       <div id="orderBannerAmount" class="text-white font-bold text-xl"></div>
+      </div>
+     </div>
+    </div><!-- Veg/Non-Veg Selection Screen -->
+    <div id="vegNonvegScreen" class="px-4 py-6 hidden">
+     <div class="text-center mb-8">
+      <h2 id="categoryTitle" class="font-display text-2xl font-bold text-amber-900 mb-2">Choose Your Preference</h2>
+      <p class="text-amber-600 text-sm">Select your dietary preference</p>
+     </div>
+     <div class="space-y-4"><!-- Veg Option -->
+      <div class="category-card bg-white rounded-2xl p-6 cursor-pointer shadow-lg border-2 border-transparent hover:border-green-400" onclick="selectDietType('veg')">
+       <div class="flex items-center gap-4">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+         <div class="w-8 h-8 border-2 border-green-500 rounded flex items-center justify-center">
+          <div class="w-4 h-4 bg-green-500 rounded-full"></div>
+         </div>
+        </div>
+        <div class="flex-1">
+         <h3 class="font-semibold text-gray-800 text-xl">Vegetarian</h3>
+         <p class="text-gray-500 text-sm">Pure veg delights</p>
+        </div>
+        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+       </div>
+      </div><!-- Non-Veg Option -->
+      <div class="category-card bg-white rounded-2xl p-6 cursor-pointer shadow-lg border-2 border-transparent hover:border-red-400" onclick="selectDietType('nonveg')">
+       <div class="flex items-center gap-4">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+         <div class="w-8 h-8 border-2 border-red-500 rounded flex items-center justify-center">
+          <div class="w-4 h-4 bg-red-500 rounded-full"></div>
+         </div>
+        </div>
+        <div class="flex-1">
+         <h3 class="font-semibold text-gray-800 text-xl">Non-Vegetarian</h3>
+         <p class="text-gray-500 text-sm">Meat &amp; seafood specials</p>
+        </div>
+        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+       </div>
+      </div>
+     </div>
+    </div><!-- Subcategory Screen -->
+    <!-- Menu Items Screen -->
+    <div id="menuItemsScreen" class="px-4 py-4 hidden"><!-- Search Bar -->
+     <div class="mb-6 animate-fade-up">
+      <div class="relative"><input type="text" id="searchInput" placeholder="Search dishes…" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors">
+       <svg class="absolute right-3 top-3.5 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+       </svg>
+      </div>
+     </div>
+     <div id="menuItemsList" class="space-y-4"><!-- Menu items will be populated dynamically -->
+     </div>
+    </div><!-- Order Details Screen -->
+    <div id="orderDetailsScreen" class="px-4 py-6 hidden">
+     <div class="text-center mb-6">
+      <h2 class="font-display text-2xl font-bold text-amber-900 mb-2">Order Details</h2>
+      <p class="text-amber-600 text-sm">View your recent order</p>
+     </div>
+     <div id="orderDetailsContent" class="bg-white rounded-2xl p-4 shadow-lg mb-6"><!-- Order details will be populated dynamically -->
+     </div>
+    </div><!-- Checkout Screen -->
+    <div id="checkoutScreen" class="px-4 py-6 hidden">
+     <div class="text-center mb-6">
+      <h2 class="font-display text-2xl font-bold text-amber-900 mb-2">Checkout</h2>
+      <p class="text-amber-600 text-sm">Complete your order</p>
+     </div><!-- Cart Summary -->
+     <div id="checkoutCartSummary" class="bg-white rounded-2xl p-4 shadow-lg mb-6">
+      <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2"><span>🛒</span> Your Order</h3>
+      <div id="checkoutItems" class="space-y-2 max-h-48 overflow-y-auto scrollbar-hide"><!-- Cart items will be listed here -->
+      </div>
+      <div class="border-t border-gray-200 mt-3 pt-3">
+       <div class="flex justify-between items-center font-bold text-lg"><span>Total</span> <span id="checkoutTotal" class="text-amber-600">₹0</span>
+       </div>
+      </div>
+     </div><!-- Order Form -->
+     <form id="orderForm" class="bg-white rounded-2xl p-5 shadow-lg space-y-4">
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Your Name *</label> <input type="text" id="customerName" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors" placeholder="Enter your name">
+      </div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Table no / Room no *</label> <input type="text" id="roomNumber" required class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors" placeholder="e.g., 101">
+      </div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Contact Number *</label> <input
+  type="tel"
+  id="contactNumber"
+  required
+  maxlength="10"
+  inputmode="numeric"
+  pattern="[0-9]{10}"
+  oninput="this.value = this.value.replace(/\D/g, '').slice(0, 10)"
+  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+  placeholder="Enter 10-digit number">
+      </div>
+      <div><label class="block text-sm font-medium text-gray-700 mb-1">Special Requests</label> <textarea id="specialRequest" rows="3" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors resize-none" placeholder="Any allergies or special instructions..."></textarea>
+      </div><button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg">
+       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+       </svg> Place Order </button>
+     </form>
+    </div>
+   </main><!-- Floating Cart Button -->
+   <div id="floatingCart" class="fixed bottom-6 right-4 z-50 hidden"><button onclick="goToCheckout()" class="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-3 rounded-full shadow-xl flex items-center gap-3 hover:from-amber-600 hover:to-orange-700 transition-all">
+     <div class="relative">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg><span id="cartCount" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+     </div><span id="cartTotal" class="font-semibold">₹0</span> </button>
+   </div>
+  </div>
+  <script>
+    // Menu Data
+    
+
+    // Application State
+    let currentScreen = 'home';
+    let currentCategory = '';
+    let currentDietType = '';
+    
+    let cart = [];
+let allMenuItems = [];           // items currently showing on screen
+let filteredMenuItems = [];
+// ✅ Firestore will fill this global array
+window.menuItemsFromDashboard = window.menuItemsFromDashboard || [];
+// -------------------------------
+// ✅ ORDER LOCALSTORAGE (PER HOTEL)
+// -------------------------------
+(function initOrderStorageHelpers() {
+  function getHotelSlugFromPathSafe() {
+    try {
+      const parts = window.location.pathname.split("/").filter(Boolean);
+      // URL: /menu/<hotelSlug>
+      return (parts[0] === "menu") ? (parts[1] || "") : (parts[0] || "");
+    } catch (e) {
+      return "";
+    }
+  }
+
+  const slug = getHotelSlugFromPathSafe();
+
+  function key(base) {
+    return slug ? `${base}_${slug}` : base;
+  }
+
+  function get(base) {
+    // 1) prefer per-hotel
+    let v = localStorage.getItem(key(base));
+    if (v !== null) return v;
+
+    // 2) fallback to old global key
+    v = localStorage.getItem(base);
+
+    // 3) auto-migrate old -> per-hotel (so previous orders become visible again)
+    if (v !== null) {
+      localStorage.setItem(key(base), v);
+    }
+    return v;
+  }
+
+  function set(base, value) {
+    localStorage.setItem(key(base), value);
+    // also keep global key for backward compatibility (safe)
+    localStorage.setItem(base, value);
+  }
+
+  window.__ORDER_LS__ = { slug, key, get, set };
+})();
+function getStoredOrders() {
+  try {
+    const raw = window.__ORDER_LS__?.get("myOrders");
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+
+    // normal case
+    if (Array.isArray(parsed)) return parsed;
+
+    // old broken case: single object saved instead of array
+    if (parsed && typeof parsed === "object") return [parsed];
+
+    return [];
+  } catch (e) {
+    console.warn("getStoredOrders parse failed:", e);
+    return [];
+  }
+}
+
+function saveStoredOrders(list) {
+  const safeList = Array.isArray(list) ? list : [];
+
+  // remove duplicates by firestore/doc id, keep newest first
+  const seen = new Set();
+  const unique = [];
+
+  for (const order of safeList) {
+    const id = order?.firestoreDocId || order?.docId || order?.orderId || Math.random().toString(36);
+    if (seen.has(id)) continue;
+    seen.add(id);
+    unique.push(order);
+  }
+
+  window.__ORDER_LS__?.set("myOrders", JSON.stringify(unique.slice(0, 20)));
+}
+
+function getStoredLastOrder() {
+  try {
+    const raw = window.__ORDER_LS__?.get("lastOrder");
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    console.warn("getStoredLastOrder parse failed:", e);
+    return null;
+  }
+}
+
+function saveStoredLastOrder(order) {
+  if (!order) return;
+  window.__ORDER_LS__?.set("lastOrder", JSON.stringify(order));
+}
+
+
+    
+    // Filter state
+    let activeFilters = {
+      search: '',
+      categories: [],
+      diets: [],
+      courses: []
+    };
+
+    // Config
+    const defaultConfig = {
+      restaurant_name: '',
+      whatsapp_number: '+919876543210',
+      welcome_message: 'Welcome to our restaurant',
+      primary_color: '#f59e0b',
+      secondary_color: '#ffffff',
+      text_color: '#78350f',
+      accent_color: '#ea580c',
+      background_color: '#fffbeb'
+    };
+    
+    let config = { ...defaultConfig };
+
+    // Element SDK Integration
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (newConfig) => {
+          config = { ...defaultConfig, ...newConfig };
+          applyConfig();
+        },
+        mapToCapabilities: (cfg) => ({
+          recolorables: [
+            {
+              get: () => cfg.background_color || defaultConfig.background_color,
+              set: (v) => { cfg.background_color = v; window.elementSdk.setConfig({ background_color: v }); }
+            },
+            {
+              get: () => cfg.secondary_color || defaultConfig.secondary_color,
+              set: (v) => { cfg.secondary_color = v; window.elementSdk.setConfig({ secondary_color: v }); }
+            },
+            {
+              get: () => cfg.text_color || defaultConfig.text_color,
+              set: (v) => { cfg.text_color = v; window.elementSdk.setConfig({ text_color: v }); }
+            },
+            {
+              get: () => cfg.primary_color || defaultConfig.primary_color,
+              set: (v) => { cfg.primary_color = v; window.elementSdk.setConfig({ primary_color: v }); }
+            },
+            {
+              get: () => cfg.accent_color || defaultConfig.accent_color,
+              set: (v) => { cfg.accent_color = v; window.elementSdk.setConfig({ accent_color: v }); }
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (cfg) => new Map([
+          ['restaurant_name', cfg.restaurant_name || defaultConfig.restaurant_name],
+          ['whatsapp_number', cfg.whatsapp_number || defaultConfig.whatsapp_number],
+          ['welcome_message', cfg.welcome_message || defaultConfig.welcome_message]
+        ])
+      });
+    }
+
+    function applyConfig() {
+      document.getElementById('headerTitle').textContent = config.restaurant_name || defaultConfig.restaurant_name;
+      document.getElementById('welcomeText').textContent = config.welcome_message || defaultConfig.welcome_message;
+      
+      // Apply colors
+      document.body.style.background = `linear-gradient(135deg, ${config.background_color || defaultConfig.background_color} 0%, ${config.secondary_color || defaultConfig.secondary_color} 100%)`;
+      
+      const header = document.querySelector('header');
+      if (header) {
+        header.style.background = config.secondary_color || defaultConfig.secondary_color;
+      }
+    }
+    // ✅ Category map (UI -> Dashboard Menu Management category values)
+const CATEGORY_MAP = {
+  breakfast: "Breakfast",
+  lunch: "Meal",
+  dinner: "Dinner",
+  snacks: "Snacks",
+  drinks: "Drinks & Beverages"
+};
+
+// ✅ DataSDK: load menu items created by Admin (type: "menuItem")
+async function initMenuDataSdk() {
+  if (!window.dataSdk) return;
+
+  const handler = {
+    onDataChanged(data) {
+      // Take ONLY menu items from dashboard
+      window.menuItemsFromDashboard = (data || []).filter(d => d.type === "menuItem");
+
+
+      // If we are already on menu items screen, re-render safely
+      if (currentScreen === "menuItemsScreen") {
+        renderMenuItemsFromDashboard();
+      }
+    }
+  };
+
+  const res = await window.dataSdk.init(handler);
+  if (!res.isOk) console.error("❌ Menu DataSDK init failed");
+}
+
+// ✅ Build items list based on currentCategory + dietType
+function getMenuItemsForSelection() {
+  const catName = CATEGORY_MAP[currentCategory];
+
+  // Drinks: skip diet selection (show all drinks items)
+  if (currentCategory === "drinks") {
+    return window.menuItemsFromDashboard.filter(i => (i.category || "") === catName);
+  }
+
+  const dietName = currentDietType === "veg" ? "Veg" : "Non-Veg";
+
+  return window.menuItemsFromDashboard.filter(i =>
+    (i.category || "") === catName &&
+    (i.dietType || "") === dietName &&
+    (i.isAvailable !== false) // only available items
+  );
+}
+
+// ✅ Render menu items (re-uses your existing card UI + cart logic)
+function renderMenuItemsFromDashboard() {
+  const container = document.getElementById("menuItemsList");
+  container.innerHTML = "";
+
+  const items = getMenuItemsForSelection();
+
+  if (!items.length) {
+    container.innerHTML = `
+      <div class="text-center py-12">
+        <div class="text-6xl mb-4">🍽️</div>
+        <h3 class="text-gray-600 font-medium">No items available</h3>
+        <p class="text-gray-400 text-sm">Admin has not added items for this category yet</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Convert to the same shape your UI expects
+  allMenuItems = items.map(it => ({
+  id: it.__backendId,
+  name: it.name || "Item",
+  price: Number(it.price || 0),
+  desc: it.description || "",
+  emoji: it.emoji || "🍽️",
+  special: !!it.isSpecial,
+  isVeg: (it.dietType || "") === "Veg",
+
+  // ✅ keep actual values from dashboard item
+  category: it.category || currentCategory,
+  dietType: it.dietType || currentDietType,
+  subcategory: it.subcategory || ""
+}));
+
+  resetFilters();
+  applyFiltersAndRender();
+}
+
+
+    // Navigation Functions
+    function showScreen(screenId, options = {}) {
+  const { pushToHistory = true, replaceHistory = false } = options;
+  const screens = ['homeScreen', 'vegNonvegScreen', 'menuItemsScreen', 'checkoutScreen', 'orderDetailsScreen'];
+
+  screens.forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+
+  document.getElementById(screenId).classList.remove('hidden');
+
+  const backBtn = document.getElementById('backBtn');
+  if (screenId === 'homeScreen') {
+    backBtn.classList.add('hidden');
+    document.getElementById('headerTitle').textContent = config.restaurant_name || defaultConfig.restaurant_name;
+  } else {
+    backBtn.classList.remove('hidden');
+  }
+
+  currentScreen = screenId;
+  window.scrollTo(0, 0);
+
+  const historyState = {
+    hotelMenuInternal: true,
+    screenId: screenId,
+    currentCategory: currentCategory,
+    currentDietType: currentDietType
+  };
+
+  if (replaceHistory) {
+    history.replaceState(historyState, '');
+  } else if (pushToHistory) {
+    history.pushState(historyState, '');
+  }
+}
+
+function goBack(fromBrowserBack = false) {
+  if (!fromBrowserBack) {
+    history.back();
+    return;
+  }
+
+  if (currentScreen === 'vegNonvegScreen') {
+    showScreen('homeScreen', { pushToHistory: false });
+  } else if (currentScreen === 'menuItemsScreen') {
+    if (currentCategory === 'drinks') {
+      showScreen('homeScreen', { pushToHistory: false });
+    } else {
+      showScreen('vegNonvegScreen', { pushToHistory: false });
+    }
+  } else if (currentScreen === 'checkoutScreen') {
+    showScreen('menuItemsScreen', { pushToHistory: false });
+    renderMenuItemsFromDashboard();
+  } else if (currentScreen === 'orderDetailsScreen') {
+    showScreen('homeScreen', { pushToHistory: false });
+  } else {
+    showScreen('homeScreen', { pushToHistory: false });
+  }
+}
+
+
+    document.getElementById('backBtn').addEventListener('click', goBack);
+    window.addEventListener('popstate', function(event) {
+  const state = event.state;
+
+  if (state && state.hotelMenuInternal) {
+    currentCategory = state.currentCategory || '';
+    currentDietType = state.currentDietType || '';
+
+    showScreen(state.screenId || 'homeScreen', { pushToHistory: false });
+
+    if (state.screenId === 'menuItemsScreen') {
+      renderMenuItemsFromDashboard();
+    } else if (state.screenId === 'checkoutScreen') {
+      renderCheckoutItems();
+    } else if (state.screenId === 'orderDetailsScreen') {
+      viewRecentOrder(true);
+    }
+
+    return;
+  }
+
+  goBack(true);
+});
+
+    // Category Selection
+    function selectCategory(category) {
+      currentCategory = category;
+      const titles = {
+        breakfast: 'Breakfast Menu',
+        lunch: 'Lunch & Meals',
+        dinner: 'Dinner Specials',
+        snacks: 'Snacks & Bites',
+        drinks: 'Drinks & Beverages'
+      };
+      document.getElementById('categoryTitle').textContent = titles[category];
+      document.getElementById('headerTitle').textContent = titles[category];
+      
+      // For drinks, skip veg/nonveg selection and go directly to menu
+      if (category === 'drinks') {
+  currentDietType = 'veg'; // not used for drinks filter
+  renderMenuItemsFromDashboard();
+  showScreen('menuItemsScreen');
+} else {
+  showScreen('vegNonvegScreen');
+}
+
+    }
+
+    // Diet Type Selection
+    function selectDietType(type) {
+  currentDietType = type;
+  renderMenuItemsFromDashboard();
+  showScreen('menuItemsScreen');
+}
+
+
+    
+
+    function resetFilters() {
+      activeFilters = {
+        search: '',
+        categories: [],
+        diets: [],
+        courses: []
+      };
+      
+      document.getElementById('searchInput').value = '';
+      document.querySelectorAll('.filter-category, .filter-diet, .filter-course').forEach(cb => {
+        cb.checked = false;
+      });
+    }
+
+    function applyFiltersAndRender() {
+      const container = document.getElementById('menuItemsList');
+      
+      // Apply search filter
+      filteredMenuItems = allMenuItems.filter(item => {
+        if (activeFilters.search === '') return true;
+        return item.name.toLowerCase().includes(activeFilters.search.toLowerCase());
+      });
+      
+      // Apply category filter if any are selected
+      if (activeFilters.categories.length > 0) {
+        filteredMenuItems = filteredMenuItems.filter(item => 
+          activeFilters.categories.includes(item.category)
+        );
+      }
+      
+      // Apply diet filter if any are selected
+      if (activeFilters.diets.length > 0) {
+        filteredMenuItems = filteredMenuItems.filter(item => 
+          activeFilters.diets.includes(item.dietType)
+        );
+      }
+      
+      // Apply course filter if any are selected
+      if (activeFilters.courses.length > 0) {
+        filteredMenuItems = filteredMenuItems.filter(item => 
+          activeFilters.courses.includes(item.subcategory)
+        );
+      }
+      
+      // Render filtered items
+      if (filteredMenuItems.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12">
+            <div class="text-6xl mb-4">🔍</div>
+            <h3 class="text-gray-600 font-medium">No items found</h3>
+            <p class="text-gray-400 text-sm">Try adjusting your filters</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = '';
+      
+      filteredMenuItems.forEach((item, index) => {
+        const cartItem = cart.find(c => c.id === item.id);
+        const quantity = cartItem ? cartItem.quantity : 0;
+        
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded-2xl shadow-lg overflow-visible animate-fade-up relative';
+        card.style.animationDelay = `${(index % 5) * 0.05}s`;
+        card.id = `item-${item.id}`;
+        
+        card.innerHTML = `
+${item.special ? `
+<div class="absolute -top-3 right-4 z-10 special-tag text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md whitespace-nowrap">
+⭐ Special
+</div>
+` : ''}
+
+<div class="flex p-4 gap-4 ${item.special ? 'pt-5' : ''}">
+<div class="w-20 h-20 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl flex items-center justify-center text-4xl flex-shrink-0">
+${item.emoji}
+</div>
+
+<div class="flex-1 min-w-0">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 min-w-0">
+<div class="w-4 h-4 flex items-center justify-center rounded ${item.isVeg ? 'veg-badge' : 'nonveg-badge'}"></div>
+<h3 class="font-semibold text-gray-800 break-words leading-snug">${item.name}</h3>
+</div>
+
+${item.subcategory ? `
+<div class="flex">
+<span class="text-[11px] text-amber-700 font-medium bg-amber-50 border border-amber-200 px-2 py-1 rounded-full whitespace-nowrap max-w-full">
+${item.subcategory}
+</span>
+</div>
+` : ''}
+</div>
+
+<p class="text-gray-500 text-sm mt-2 line-clamp-2">${item.desc}</p>
+
+<div class="flex items-center justify-between mt-3">
+<span class="font-bold text-amber-600 text-lg">₹${item.price}</span>
+<div class="flex items-center gap-2">
+${quantity > 0 ? `
+<button onclick="updateQuantity('${item.id}', -1)" class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors font-bold">−</button>
+<span class="w-8 text-center font-semibold text-gray-800">${quantity}</span>
+` : ''}
+<button onclick="updateQuantity('${item.id}', 1)" class="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center text-white hover:bg-amber-600 transition-colors font-bold">+</button>
+</div>
+</div>
+</div>
+</div>
+`;
+        
+        container.appendChild(card);
+      });
+    }
+
+    // Cart Functions
+    function updateQuantity(itemId, delta) {
+  // ✅ Find item from currently shown menu list (DataSDK)
+  const item = allMenuItems.find(i => i.id === itemId);
+  if (!item) return;
+
+  const existingIndex = cart.findIndex(c => c.id === itemId);
+
+  if (existingIndex >= 0) {
+    cart[existingIndex].quantity += delta;
+    if (cart[existingIndex].quantity <= 0) {
+      cart.splice(existingIndex, 1);
+    }
+  } else if (delta > 0) {
+    cart.push({ ...item, quantity: 1 });
+  }
+
+  updateCartUI();
+
+  // Re-render visible items list quantity UI (safe)
+  applyFiltersAndRender();
+}
+
+
+    function updateCartUI() {
+      const floatingCart = document.getElementById('floatingCart');
+      const cartCount = document.getElementById('cartCount');
+      const cartTotal = document.getElementById('cartTotal');
+      
+      const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      if (totalItems > 0) {
+        floatingCart.classList.remove('hidden');
+        cartCount.textContent = totalItems;
+        cartTotal.textContent = `₹${totalPrice}`;
+        
+        // Add bounce animation
+        floatingCart.querySelector('button').classList.add('cart-bounce');
+        setTimeout(() => {
+          floatingCart.querySelector('button').classList.remove('cart-bounce');
+        }, 500);
+      } else {
+        floatingCart.classList.add('hidden');
+      }
+    }
+
+    // Checkout Functions
+    function goToCheckout() {
+      if (cart.length === 0) return;
+      
+      renderCheckoutItems();
+      showScreen('checkoutScreen');
+      document.getElementById('headerTitle').textContent = 'Checkout';
+    }
+
+    function renderCheckoutItems() {
+      const container = document.getElementById('checkoutItems');
+      container.innerHTML = '';
+      
+      cart.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'flex justify-between items-center py-3 border-b border-gray-100 last:border-0';
+        div.id = `checkout-item-${item.id}`;
+        
+        div.innerHTML = `
+          <div class="flex items-center gap-2 flex-1">
+            <span>${item.emoji}</span>
+            <span class="text-gray-700">${item.name}</span>
+            <span class="text-gray-400 text-sm">×${item.quantity}</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="font-medium text-gray-800">Rs. ${item.price * item.quantity}</span>
+            <div class="flex items-center gap-1">
+              <button onclick="updateCheckoutQuantity('${item.id}', -1)" class="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors text-sm font-bold">−</button>
+              <span class="w-5 text-center text-xs font-semibold text-gray-800">${item.quantity}</span>
+              <button onclick="updateCheckoutQuantity('${item.id}', 1)" class="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white hover:bg-amber-600 transition-colors text-sm font-bold">+</button>
+            </div>
+            <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors" title="Remove item">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+      
+      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      document.getElementById('checkoutTotal').textContent = `Rs. ${total}`;
+    }
+
+    function updateCheckoutQuantity(itemId, delta) {
+      const existingIndex = cart.findIndex(c => c.id === itemId);
+      
+      if (existingIndex >= 0) {
+        cart[existingIndex].quantity += delta;
+        if (cart[existingIndex].quantity <= 0) {
+          cart.splice(existingIndex, 1);
+        }
+      }
+      
+      updateCartUI();
+      renderCheckoutItems();
+      
+      // If cart is empty, go back to previous screen
+      if (cart.length === 0) {
+        goBack();
+      }
+    }
+
+    function removeFromCart(itemId) {
+      const index = cart.findIndex(c => c.id === itemId);
+      if (index >= 0) {
+        cart.splice(index, 1);
+        updateCartUI();
+        renderCheckoutItems();
+        
+        // If cart is empty, go back to previous screen
+        if (cart.length === 0) {
+          goBack();
+        }
+      }
+    }
+
+    // Form Submission
+    document.getElementById('orderForm').addEventListener('submit', async function(e) {
+
+      e.preventDefault();
+      
+      const name = document.getElementById('customerName').value.trim();
+const room = document.getElementById('roomNumber').value.trim();
+const contact = document.getElementById('contactNumber').value.replace(/\D/g, '').trim();
+const special = document.getElementById('specialRequest').value;
+
+if (!/^\d{10}$/.test(contact)) {
+  alert("Please enter a valid 10-digit contact number.");
+  return;
+}
+      
+      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      // Create order object
+      const orderData = {
+        name: name,
+        room: room,
+        contact: contact,
+        special: special,
+        items: cart.map(item => ({
+          name: item.name,
+          emoji: item.emoji,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        total: total,
+        timestamp: new Date().toISOString(),
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString()
+      };
+      // ✅ nice display id (not used for fetching, only for UI)
+const displayOrderId = String(Math.floor(Math.random() * 9000) + 1000);
+
+// ✅ send to Firestore and get docId back (BEST for status tracking)
+const firestoreDocId = await window.placeOrderToFirebase({
+  orderId: displayOrderId,          // ✅ store for UI display
+  name: name,
+  roomNumber: room,
+  contact: contact,
+  note: special,
+  items: cart.map(item => ({
+    name: item.name,
+    qty: item.quantity,
+    price: item.price
+  })),
+  total: total
+});
+
+if (!firestoreDocId) {
+  alert("Order could not be placed. Please try again.");
+  return;
+}
+
+// ✅ store in localStorage as "myOrders" list (latest first)
+const myOrders = getStoredOrders();
+
+const fullOrderForHistory = {
+  ...orderData,
+  docId: firestoreDocId,
+  firestoreDocId: firestoreDocId,
+  orderId: displayOrderId,
+  status: "pending",
+  createdAt: new Date().toISOString(),
+  roomNumber: room
+};
+
+myOrders.unshift(fullOrderForHistory);
+saveStoredOrders(myOrders);
+
+const lastOrderForUI = {
+  ...orderData,
+  orderId: displayOrderId,
+  firestoreDocId: firestoreDocId,
+  docId: firestoreDocId,
+  status: "pending"
+};
+saveStoredLastOrder(lastOrderForUI);
+// ✅ start live status listener (updates banner + details automatically)
+if (typeof window.listenToOrderStatus === "function") {
+  window.listenToOrderStatus(firestoreDocId, (fresh) => {
+    if (!fresh) return;
+
+    const cur = getStoredLastOrder();
+if (!cur || (cur.firestoreDocId || cur.docId) !== firestoreDocId) return;
+
+cur.status = (fresh.status || cur.status || "pending").toLowerCase();
+saveStoredLastOrder(cur);
+
+const list = getStoredOrders();
+const idx = list.findIndex(x => (x.docId === firestoreDocId || x.firestoreDocId === firestoreDocId));
+if (idx >= 0) {
+  list[idx].status = cur.status;
+  saveStoredOrders(list);
+}
+
+    // refresh UI if user is on home/order screen
+    if (typeof updateOrderBanner === "function") updateOrderBanner();
+    if (currentScreen === "orderDetailsScreen") viewRecentOrder();
+  });
+}
+
+
+
+      // Show success state// Show success state
+      const submitBtn = document.getElementById('submitBtn');
+      const originalText = submitBtn.innerHTML;
+      
+      submitBtn.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Order Placed Successfully!';
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.7';
+      
+      // Clear cart and reset form
+      cart = [];
+      document.getElementById('orderForm').reset();
+      updateCartUI();
+      
+      // Redirect to home after delay
+      setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        
+        // Update home page with order
+        updateOrderBanner();
+        
+        // Go to home
+        showScreen('homeScreen');
+      }, 2000);
+    });
+
+    function updateOrderBanner() {
+const order = getStoredLastOrder();
+if (!order) return;
+
+  const itemsArr = Array.isArray(order.items) ? order.items : [];
+  const itemCount = itemsArr.reduce(
+    (sum, item) => sum + (item.quantity || item.qty || 0),
+    0
+  );
+
+  const status = String(order.status || "pending").toLowerCase();
+  const statusLabel =
+    status === "confirmed" ? "✅ Confirmed" :
+    status === "completed" ? "🏁 Completed" :
+    status === "cancelled" ? "❌ Cancelled" :
+    "⏳ Pending";
+
+  document.getElementById("orderBannerTitle").textContent =
+    `${itemCount} item${itemCount > 1 ? "s" : ""} • ${status.toUpperCase()} (Order #${order.orderId || "—"})`;
+
+  document.getElementById("orderBannerPrice").textContent =
+    `${order.date || ""} at ${order.time || ""} • ${statusLabel}`;
+
+  document.getElementById("orderBannerAmount").textContent =
+    `₹${order.total || 0}`;
+}
+// ✅ Register UI refresh listener ONLY ONCE
+(function registerOrderStatusUIListenerOnce() {
+  if (window.__orderStatusUIListenerRegistered) return;
+  window.__orderStatusUIListenerRegistered = true;
+
+  window.addEventListener("order-status-changed", () => {
+    try {
+      updateOrderBanner();
+      if (currentScreen === "orderDetailsScreen") viewRecentOrder();
+    } catch (e) {
+      console.warn("order-status-changed UI refresh failed:", e);
+    }
+  });
+})();
+
+    
+
+    
+
+    function viewRecentOrder(fromBrowserHistory = false) {
+  let myOrders = getStoredOrders();
+
+  // fallback: if history empty, show lastOrder
+  if (!Array.isArray(myOrders) || myOrders.length === 0) {
+    const single = getStoredLastOrder();
+    if (!single) {
+      alert("No recent orders found");
+      return;
+    }
+    myOrders = [single];
+  }
+
+  const container = document.getElementById("orderDetailsContent");
+  const showOrders = myOrders.slice(0, 5);
+
+  let html = `
+  <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+    <span>📋</span> Order History
+  </h3>
+  `;
+
+  showOrders.forEach((order, orderIndex) => {
+    const itemsArr = Array.isArray(order.items) ? order.items : [];
+    const normalizedStatus = String(order.status || "pending").toLowerCase();
+
+    const statusPillClass =
+      normalizedStatus === "confirmed"
+        ? "bg-orange-100 text-orange-700"
+        : normalizedStatus === "completed"
+        ? "bg-green-100 text-green-700"
+        : normalizedStatus === "cancelled"
+        ? "bg-red-100 text-red-700"
+        : "bg-yellow-100 text-yellow-700";
+
+    const statusLabel =
+      normalizedStatus === "confirmed"
+        ? "✅ Confirmed"
+        : normalizedStatus === "completed"
+        ? "🏁 Completed"
+        : normalizedStatus === "cancelled"
+        ? "❌ Cancelled"
+        : "⏳ Pending";
+
+    const total = Number(order.total || 0);
+
+    html += `
+    <div class="bg-white rounded-2xl p-4 shadow-lg ${orderIndex === 0 ? "" : "mt-4"}">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-sm text-gray-700">
+          <strong>Order #</strong> ${order.orderId || "—"}
+        </div>
+
+        <span class="text-xs font-semibold px-3 py-1 rounded-full ${statusPillClass}">
+          ${statusLabel}
+        </span>
+      </div>
+
+      <div class="text-xs text-gray-600 mb-3">
+        <span><strong>Date:</strong> ${order.date || ""}</span>
+        <span class="mx-2">•</span>
+        <span><strong>Time:</strong> ${order.time || ""}</span>
+      </div>
+
+      <div class="space-y-3 mb-4 max-h-48 overflow-y-auto scrollbar-hide">
+    `;
+
+    itemsArr.forEach((item) => {
+      const qty = Number(item.quantity || item.qty || 0);
+      const price = Number(item.price || 0);
+
+      html += `
+      <div class="flex justify-between items-center py-2 border-b border-gray-100">
+        <div class="flex items-center gap-2">
+          <span>${item.emoji || "🍽️"}</span>
+          <span class="text-gray-700">${item.name || "Item"}</span>
+          <span class="text-gray-400 text-sm">×${qty}</span>
+        </div>
+        <span class="font-medium text-gray-800">Rs. ${price * qty}</span>
+      </div>
+      `;
+    });
+
+    html += `
+      </div>
+
+      <div class="border-t border-gray-300 pt-3 mt-3">
+        <div class="flex justify-between items-center font-bold text-lg">
+          <span>Total</span>
+          <span class="text-amber-600">Rs. ${total}</span>
+        </div>
+      </div>
+    </div>
+    `;
+  });
+
+  container.innerHTML = html;
+  document.getElementById("headerTitle").textContent = "Order Details";
+  showScreen("orderDetailsScreen", { pushToHistory: !fromBrowserHistory });
+}
+
+    // Initialize order banner on page load
+    
+    // ✅ Keep updating ALL stored orders live (not only latest one)
+function startStoredOrdersStatusWatchers() {
+  try {
+    if (typeof window.listenToOrderStatus !== "function") return;
+
+    const ids = new Set();
+    const orders = getStoredOrders();
+
+    if (Array.isArray(orders)) {
+      orders.forEach(order => {
+        const docId = order?.firestoreDocId || order?.docId;
+        if (docId) ids.add(docId);
+      });
+    }
+
+    const last = getStoredLastOrder();
+    const lastId = last?.firestoreDocId || last?.docId;
+    if (lastId) ids.add(lastId);
+
+    ids.forEach(docId => {
+      window.listenToOrderStatus(docId);
+    });
+  } catch (e) {
+    console.error("startStoredOrdersStatusWatchers error:", e);
+  }
+}
+
+function initializeApp() {
+  updateOrderBanner();
+  applyConfig();
+}
+
+    // Setup filter event listeners
+    function setupFilterListeners() {
+      // Search input
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', async function(e) {
+
+          activeFilters.search = e.target.value;
+          applyFiltersAndRender();
+        });
+      }
+    }
+
+    // ✅ resume live status updates for ALL stored orders (WAIT until module loads)
+function ensureStatusListener() {
+  let tries = 0;
+
+  const timer = setInterval(() => {
+    tries++;
+
+    try {
+      if (typeof window.listenToOrderStatus !== "function") {
+        if (tries > 40) clearInterval(timer);
+        return;
+      }
+
+      const last = getStoredLastOrder();
+      const lastId = last?.firestoreDocId || last?.docId;
+
+      if (!lastId) {
+        clearInterval(timer);
+        return;
+      }
+
+      window.listenToOrderStatus(lastId);
+      clearInterval(timer);
+    } catch (e) {
+      if (tries > 40) clearInterval(timer);
+    }
+  }, 250);
+}
+
+// ✅ Call initialize on page load (YOU REMOVED THIS BEFORE)
+document.addEventListener("DOMContentLoaded", function () {
+  initializeApp();
+  setupFilterListeners();
+  ensureStatusListener();
+
+  history.replaceState({
+    hotelMenuInternal: true,
+    screenId: 'homeScreen',
+    currentCategory: '',
+    currentDietType: ''
+  }, '');
+});
+
+window.currentScreen = currentScreen;
+window.renderMenuItemsFromDashboard = renderMenuItemsFromDashboard;
+window.getMenuItemsForSelection = getMenuItemsForSelection;
+Object.defineProperty(window, "currentScreen", { get: () => currentScreen });
+// Privacy Policy Modal
+function openPrivacyPolicy() {
+  const modal = document.getElementById("privacyPolicyModal");
+  if (modal) {
+    modal.classList.remove("hidden");
+  }
+}
+
+function closePrivacyPolicy() {
+  const modal = document.getElementById("privacyPolicyModal");
+  if (modal) {
+    modal.classList.add("hidden");
+  }
+}
+
+// expose globally for inline onclick
+window.openPrivacyPolicy = openPrivacyPolicy;
+window.closePrivacyPolicy = closePrivacyPolicy;
+
+  </script>
+ 
+ 
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getAuth,
+  signInAnonymously,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import {
+getFirestore,
+collection,
+doc,
+addDoc,
+serverTimestamp,
+onSnapshot,
+query,
+orderBy,
+getDoc,
+getDocs
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBKFbHkeyrF4BJDelyJpxzLkNmCaTdfnp0",
+    authDomain: "hotelmenupro-3112d.firebaseapp.com",
+    projectId: "hotelmenupro-3112d",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+// ✅ silent sign-in (no UI)
+signInAnonymously(auth).catch((e) => {
+  console.error("Anonymous auth failed:", e);
+});
+
+ console.log("🔥 Firebase menu script loaded");
+
+// ✅ HOTEL SLUG FROM PATH (must be after initializeApp + getFirestore)
+function getHotelSlugFromPath() {
+  const parts = window.location.pathname.split("/").filter(Boolean);
+  // URL will be: /menu/<hotelSlug>
+  return (parts[0] === "menu") ? (parts[1] || null) : (parts[0] || null);
+}
+
+const HOTEL_SLUG = getHotelSlugFromPath();
+
+if (!HOTEL_SLUG) {
+  alert("Hotel not found in URL. Use: /menu/<hotelName>");
+  window.location.href = "/";
+}
+// ✅ Load hotel name dynamically
+async function loadHotelInfo() {
+  try {
+    const hotelRef = doc(db, "hotels", HOTEL_SLUG);
+    const snap = await getDoc(hotelRef);
+
+    if (!snap.exists()) {
+      console.warn("Hotel not found in Firestore");
+      return;
+    }
+
+    const hotelData = snap.data();
+    const hotelName = hotelData.hotelName || HOTEL_SLUG;
+
+    // Update header title
+    const header = document.getElementById("headerTitle");
+    if (header) header.textContent = hotelName;
+
+    // Update welcome text
+    const welcome = document.getElementById("welcomeText");
+    if (welcome) welcome.textContent = `Welcome to ${hotelName}`;
+
+    // Update config dynamically
+    config.restaurant_name = hotelName;
+
+  } catch (err) {
+    console.error("Failed to load hotel info:", err);
+  }
+}
+// ✅ Load hotel contact number dynamically
+async function loadHotelContactNumber() {
+  try {
+    const hotelRef = doc(db, "hotels", HOTEL_SLUG);
+    const snap = await getDoc(hotelRef);
+
+    if (!snap.exists()) return;
+
+    const data = snap.data() || {};
+    const number = String(data.contactNumber || "").trim();
+
+    if (!number) return;
+
+    const el = document.getElementById("hotelContactFooter");
+    if (!el) return;
+
+    el.href = "tel:" + number;
+    el.textContent = "Call Kitchen: " + number;
+    el.classList.remove("hidden");
+  } catch (e) {
+    console.error("Contact load error:", e);
+  }
+}
+
+loadHotelInfo();
+// ------------------------
+// PLAN CHECK (PUBLIC MENU)
+// ------------------------
+function showPlanExpiredOverlay(hotelName) {
+  const overlay = document.getElementById("planExpiredOverlay");
+  const nameEl = document.getElementById("expiredHotelName");
+
+  if (nameEl) nameEl.textContent = hotelName || HOTEL_SLUG || "Hotel";
+  if (overlay) overlay.classList.remove("hidden");
+
+  // Optional: hide cart button if any
+  const floatingCart = document.getElementById("floatingCart");
+  if (floatingCart) floatingCart.classList.add("hidden");
+}
+
+function hidePlanExpiredOverlay() {
+  const overlay = document.getElementById("planExpiredOverlay");
+  if (overlay) overlay.classList.add("hidden");
+}
+
+// Decide if plan is active based on your hotel doc fields.
+// ✅ Adjust field names here if your dashboard uses different names.
+function toBool(v) {
+  if (v === true) return true;
+  if (v === false) return false;
+
+  if (typeof v === "string") {
+    const s = v.trim().toLowerCase();
+    if (["true", "1", "yes", "active", "enabled"].includes(s)) return true;
+    if (["false", "0", "no", "inactive", "disabled"].includes(s)) return false;
+  }
+
+  if (typeof v === "number") return v === 1;
+
+  return false;
+}
+
+function isPlanActive(hotelData) {
+  if (!hotelData) return false;
+
+  // ✅ support EXACT keys used in your project:
+  // - subscriptionactive (as you said in your messages)
+  // - subscriptionActive (camelCase)
+  // - planActive (fallback)
+  const flag =
+    (hotelData.subscriptionactive ?? hotelData.subscriptionActive ?? hotelData.planActive);
+
+  return toBool(flag);
+}
+function isHotelManuallyClosed(hotelData) {
+  if (!hotelData) return false;
+  return hotelData.hotelClosedManually === true;
+}
+
+// Live listener so when plan expires, menu immediately locks.
+function startPlanGuard() {
+  const hotelRef = doc(db, "hotels", HOTEL_SLUG);
+
+  onSnapshot(hotelRef, (snap) => {
+    if (!snap.exists()) {
+      showPlanExpiredOverlay(HOTEL_SLUG);
+      return;
+    }
+
+    const hotelData = snap.data() || {};
+    console.log("PLAN FLAGS:", {
+  subscriptionActive: hotelData.subscriptionActive,
+  planActive: hotelData.planActive,
+  planValidTill: hotelData.planValidTill
+});
+    const hotelName = hotelData.hotelName || HOTEL_SLUG;
+
+    // Keep overlay banner name updated always
+    const header = document.getElementById("headerTitle");
+    if (header) header.textContent = hotelName;
+
+    const welcome = document.getElementById("welcomeText");
+    if (welcome) welcome.textContent = `Welcome to ${hotelName}`;
+
+    // ✅ Main check
+    const active = isPlanActive(hotelData) && !isHotelManuallyClosed(hotelData);
+
+    if (!active) {
+      showPlanExpiredOverlay(hotelName);
+      // Hard block: stop menu & order interactions
+      window.__MENU_LOCKED__ = true;
+    } else {
+      hidePlanExpiredOverlay();
+      window.__MENU_LOCKED__ = false;
+    }
+  }, (err) => {
+    console.error("plan guard error:", err);
+    showPlanExpiredOverlay(HOTEL_SLUG);
+    window.__MENU_LOCKED__ = true;
+  });
+}
+
+startPlanGuard();
+window.addEventListener("load", () => {
+  loadHotelContactNumber();
+});
+
+  // ✅ 1) LIVE MENU ITEMS LISTENER
+  window.menuItemsFromDashboard = []; // keep it global so your existing code uses it
+
+  async function loadMenuItemsOnce() {
+try {
+if (window.__MENU_LOCKED__ === true) {
+window.menuItemsFromDashboard = [];
+return;
+}
+
+const ref = collection(db, "hotels", HOTEL_SLUG, "menuItems");
+const q = query(ref, orderBy("createdAt", "desc"));
+const snap = await getDocs(q);
+
+window.menuItemsFromDashboard = snap.docs.map(d => ({
+__backendId: d.id,
+id: d.id,
+...d.data()
+}));
+
+if (window.currentScreen === "menuItemsScreen" && typeof window.renderMenuItemsFromDashboard === "function") {
+window.renderMenuItemsFromDashboard();
+}
+} catch (err) {
+console.error("❌ loadMenuItemsOnce error:", err);
+}
+}
+
+loadMenuItemsOnce();
+
+  // ✅ 2) PLACE ORDER FUNCTION (same as your existing)
+  window.placeOrderToFirebase = async function(orderData) {
+    if (window.__MENU_LOCKED__ === true) {
+  alert("Sorry, menu is temporarily unavailable. Please contact the hotel staff for assistance.");
+  return null;
+}
+  try {
+    const uid = auth.currentUser?.uid || null;
+
+    const ref = await addDoc(collection(db, "hotels", HOTEL_SLUG, "orders"), {
+      ...orderData,
+      status: "pending",
+      customerUid: uid, // ✅ add this
+      createdAt: serverTimestamp()
+    });
+
+    return ref.id;
+  } catch (error) {
+    console.error("Order failed:", error);
+    throw error;
+  }
+};
+
+  // ✅ 3) LIVE ORDER STATUS LISTENER (customer side)
+// keep one listener per order doc id
+window.orderStatusUnsubs = window.orderStatusUnsubs || {};
+
+// Usage: const unsub = listenToOrderStatus(orderDocId, (freshData)=>{})
+window.listenToOrderStatus = function(orderDocId, cb) {
+  try {
+    if (!orderDocId) return null;
+
+    // already listening to this exact order
+if (typeof window.orderStatusUnsubs[orderDocId] === "function") {
+  if (typeof cb === "function") {
+    try {
+      const list = JSON.parse(window.__ORDER_LS__?.get("myOrders") || "[]");
+      const existing = list.find(x => (x.docId === orderDocId || x.firestoreDocId === orderDocId));
+
+      if (existing) {
+        cb({
+          ...existing,
+          status: String(existing.status || "pending").toLowerCase(),
+          firestoreDocId: orderDocId
+        });
+      }
+    } catch (e) {
+      console.warn("existing listener callback replay failed:", e);
+    }
+  }
+
+  return window.orderStatusUnsubs[orderDocId];
+}
+
+    const orderRef = doc(db, "hotels", HOTEL_SLUG, "orders", orderDocId);
+
+    const unsub = onSnapshot(orderRef, (snap) => {
+      if (!snap.exists()) return;
+
+      const data = snap.data() || {};
+
+      // ✅ Accept multiple possible status keys
+      const rawStatus = (data.status ?? data.orderStatus ?? data.state ?? "pending");
+      const status = String(rawStatus).toLowerCase().trim();
+            if (status === "completed" || status === "cancelled") {
+        const stop = window.orderStatusUnsubs[orderDocId];
+        if (typeof stop === "function") {
+          stop();
+        }
+        delete window.orderStatusUnsubs[orderDocId];
+      }
+
+      // ✅ Update lastOrder in localStorage
+      const lastOrderRaw = window.__ORDER_LS__?.get("lastOrder");
+      if (lastOrderRaw) {
+        try {
+          const lastOrder = JSON.parse(lastOrderRaw);
+          if ((lastOrder.firestoreDocId || lastOrder.docId) === orderDocId) {
+            lastOrder.status = status;
+            lastOrder.firestoreDocId = lastOrder.firestoreDocId || orderDocId;
+            window.__ORDER_LS__?.set("lastOrder", JSON.stringify(lastOrder));
+          }
+        } catch (e) {
+          console.warn("lastOrder parse failed:", e);
+        }
+      }
+
+      // ✅ Update myOrders list too
+      try {
+        const list = JSON.parse(window.__ORDER_LS__?.get("myOrders") || "[]");
+        const idx = list.findIndex(x => (x.docId === orderDocId || x.firestoreDocId === orderDocId));
+        if (idx >= 0) {
+          list[idx].status = status;
+          list[idx].docId = list[idx].docId || orderDocId;
+          list[idx].firestoreDocId = list[idx].firestoreDocId || orderDocId;
+          window.__ORDER_LS__?.set("myOrders", JSON.stringify(list));
+        }
+      } catch (e) {
+        console.warn("myOrders update failed:", e);
+      }
+
+      if (typeof cb === "function") {
+        cb({ ...data, status, firestoreDocId: orderDocId });
+      }
+
+      window.dispatchEvent(new CustomEvent("order-status-changed", {
+        detail: { status, orderDocId }
+      }));
+    }, (err) => {
+      console.error("❌ listenToOrderStatus snapshot error:");
+      console.error("code:", err?.code);
+      console.error("message:", err?.message);
+      console.error("hotelSlug:", HOTEL_SLUG);
+      console.error("orderDocId:", orderDocId);
+    });
+
+    window.orderStatusUnsubs[orderDocId] = unsub;
+    return unsub;
+
+  } catch (e) {
+    console.error("listenToOrderStatus failed:", e);
+    return null;
+  }
+};
+
+
+</script>
+
+
+
+ <!-- Footer -->
+<footer class="text-center text-xs text-gray-500 py-6 px-4">
+
+  <button onclick="openPrivacyPolicy()" class="text-amber-700">
+  Privacy Policy
+</button>
+
+  <span class="mx-2">|</span>
+
+  <a id="hotelContactFooter"
+   href="#"
+   class="text-amber-700 hidden">
+   Call Kitchen
+</a>
+
+</footer>
+<!-- Privacy Policy Modal -->
+<div id="privacyPolicyModal" class="fixed inset-0 z-[9999] hidden">
+
+  <div class="absolute inset-0 bg-black/50"></div>
+
+  <div class="relative flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 relative">
+
+      <button
+        onclick="closePrivacyPolicy()"
+        class="absolute top-3 right-3 text-gray-500 text-xl">
+        ✕
+      </button>
+    
+      <h2 class="text-xl font-bold mb-3">Privacy Policy</h2>
+
+      <p class="text-sm text-gray-600 leading-relaxed">
+        This restaurant respects the privacy of its customers.
+        Any information such as name, room/table number, or
+        contact number provided during ordering is used only
+        for order processing and service communication.
+
+        The hotel management is responsible for protecting
+        customer information and must not misuse or share
+        personal details with third parties.
+
+        Customer data is used solely to improve service
+        quality and fulfill orders efficiently.
+      </p>
+
+    </div>
+
+  </div>
+</div>
+ </body>
+</html>

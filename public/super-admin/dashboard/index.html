@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Admin Dashboard</title>
+  <link rel="icon" href="/favicon.png?v=3">
+<link rel="shortcut icon" href="/favicon.png?v=3">
+<link rel="apple-touch-icon" href="/favicon.png?v=3">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-950 text-white min-h-screen">
+  <div class="min-h-screen">
+    <!-- Header -->
+    <header class="sticky top-0 z-30 border-b border-white/10 bg-slate-900/90 backdrop-blur">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold">Super Admin Dashboard</h1>
+          <p class="text-sm text-slate-400 mt-1">Monitor all hotels and subscription details</p>
+        </div>
+
+        <button
+          id="logoutBtn"
+          class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl font-semibold transition"
+        >
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Loading / Status -->
+      <div id="statusBox" class="mb-6">
+        <div class="rounded-2xl border border-white/10 bg-slate-900 p-4 text-slate-300">
+          Checking session...
+        </div>
+      </div>
+
+      <!-- Dashboard Content -->
+      <div id="dashboardContent" class="hidden">
+        <!-- Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5 mb-8">
+<div class="rounded-2xl border border-white/10 bg-slate-900 p-5 shadow-lg">
+<p class="text-sm text-slate-400">Total Hotels</p>
+<h2 id="totalHotels" class="text-3xl font-bold mt-2">0</h2>
+</div>
+
+<div class="rounded-2xl border border-emerald-500/20 bg-slate-900 p-5 shadow-lg">
+<p class="text-sm text-slate-400">Active Subscription</p>
+<h2 id="activeSubscriptions" class="text-3xl font-bold mt-2 text-emerald-400">0</h2>
+</div>
+
+<div class="rounded-2xl border border-amber-500/20 bg-slate-900 p-5 shadow-lg">
+<p class="text-sm text-slate-400">Upcoming Plans</p>
+<h2 id="upcomingPlans" class="text-3xl font-bold mt-2 text-amber-400">0</h2>
+</div>
+
+<div class="rounded-2xl border border-red-500/20 bg-slate-900 p-5 shadow-lg">
+<p class="text-sm text-slate-400">Expired Hotels</p>
+<h2 id="expiredHotels" class="text-3xl font-bold mt-2 text-red-400">0</h2>
+</div>
+
+<div class="rounded-2xl border border-orange-500/20 bg-slate-900 p-5 shadow-lg">
+<p class="text-sm text-slate-400">Platform Revenue</p>
+<h2 id="platformRevenue" class="text-3xl font-bold mt-2 text-orange-400">₹0</h2>
+<p id="totalPaidOrders" class="text-xs text-slate-500 mt-2">0 paid orders</p>
+</div>
+</div>
+
+<!-- Revenue Breakdown -->
+<div class="rounded-2xl border border-white/10 bg-slate-900 shadow-lg p-5 mb-8">
+
+<div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+
+<h3 class="text-xl font-semibold">
+Revenue Breakdown
+</h3>
+
+<div class="flex gap-2">
+
+<button data-filter="today"
+class="filterBtn bg-slate-800 hover:bg-orange-500 px-3 py-1 rounded text-sm">
+Today
+</button>
+
+<button data-filter="7days"
+class="filterBtn bg-slate-800 hover:bg-orange-500 px-3 py-1 rounded text-sm">
+7 Days
+</button>
+
+<button data-filter="30days"
+class="filterBtn bg-slate-800 hover:bg-orange-500 px-3 py-1 rounded text-sm">
+30 Days
+</button>
+
+<button data-filter="all"
+class="filterBtn bg-orange-500 px-3 py-1 rounded text-sm">
+All
+</button>
+
+</div>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+<div class="bg-slate-800 border border-white/10 rounded-xl p-4">
+<p class="text-sm text-slate-400">Starter Monthly</p>
+<h3 id="revStarterMonthly" class="text-xl font-bold text-orange-400 mt-1">₹0</h3>
+</div>
+
+<div class="bg-slate-800 border border-white/10 rounded-xl p-4">
+<p class="text-sm text-slate-400">Starter Yearly</p>
+<h3 id="revStarterYearly" class="text-xl font-bold text-orange-400 mt-1">₹0</h3>
+</div>
+
+<div class="bg-slate-800 border border-white/10 rounded-xl p-4">
+<p class="text-sm text-slate-400">Pro Monthly</p>
+<h3 id="revProMonthly" class="text-xl font-bold text-orange-400 mt-1">₹0</h3>
+</div>
+
+<div class="bg-slate-800 border border-white/10 rounded-xl p-4">
+<p class="text-sm text-slate-400">Pro Yearly</p>
+<h3 id="revProYearly" class="text-xl font-bold text-orange-400 mt-1">₹0</h3>
+</div>
+
+</div>
+</div>
+        <!-- Hotel List -->
+        <div class="rounded-2xl border border-white/10 bg-slate-900 shadow-lg overflow-hidden">
+          <div class="px-5 py-4 border-b border-white/10 flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h3 class="text-xl font-semibold">All Hotels</h3>
+              <p class="text-sm text-slate-400">Click any hotel row to view full details</p>
+            </div>
+
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search hotel name, slug, email..."
+              class="w-full sm:w-80 bg-slate-800 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-orange-500"
+            />
+          </div>
+
+          <div id="hotelListWrapper" class="p-4">
+            <div id="hotelList" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+            <div id="emptyState" class="hidden text-center py-10 text-slate-400">
+              No hotels found.
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Hotel Details Modal -->
+  <div id="hotelModal" class="fixed inset-0 z-50 hidden">
+    <div id="modalBackdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+
+    <div class="relative min-h-screen flex items-center justify-center p-4">
+      <div class="w-full max-w-2xl rounded-3xl border border-white/10 bg-slate-900 shadow-2xl overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-slate-900">
+          <div>
+            <h3 class="text-xl font-bold">Hotel Details</h3>
+            <p class="text-sm text-slate-400">Subscription and owner information</p>
+          </div>
+
+          <button
+            id="closeModalBtn"
+            class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 text-white text-xl"
+          >
+            ×
+          </button>
+        </div>
+
+        <div id="modalContent" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allHotels = [];
+
+function formatMoneyFromPaise(value) {
+const paise = Number(value || 0);
+return "₹" + (paise / 100).toLocaleString("en-IN");
+}
+
+    function formatDate(value) {
+      if (!value) return "—";
+
+      try {
+        if (value._seconds) {
+          return new Date(value._seconds * 1000).toLocaleString();
+        }
+
+        if (value.seconds) {
+          return new Date(value.seconds * 1000).toLocaleString();
+        }
+
+        const d = new Date(value);
+        if (!isNaN(d.getTime())) return d.toLocaleString();
+
+        return "—";
+      } catch {
+        return "—";
+      }
+    }
+
+    function safeText(value) {
+      if (value === null || value === undefined || value === "") return "—";
+      return String(value);
+    }
+
+    function getCurrentPlan(hotel) {
+      return hotel.planKey || "—";
+    }
+
+    function getUpcomingPlan(hotel) {
+      return hotel.upcomingPlanKey || "—";
+    }
+
+    function getStatusBadge(hotel) {
+      if (hotel.subscriptionActive) {
+        return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">Active</span>`;
+      }
+      return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-500/15 text-red-400 border border-red-500/20">Expired</span>`;
+    }
+
+    function renderHotels(list) {
+      const hotelList = document.getElementById("hotelList");
+      const emptyState = document.getElementById("emptyState");
+
+      hotelList.innerHTML = "";
+
+      if (!list.length) {
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+
+      list.forEach((hotel) => {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className =
+          "text-left w-full rounded-2xl border border-white/10 bg-slate-800 hover:bg-slate-700/70 transition p-4 shadow";
+        card.onclick = () => openHotelModal(hotel);
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="min-w-0">
+              <h4 class="text-lg font-semibold truncate">${safeText(hotel.hotelName || hotel.name || hotel.id)}</h4>
+              <p class="text-sm text-slate-400 truncate">${safeText(hotel.hotelSlug || hotel.id)}</p>
+            </div>
+            ${getStatusBadge(hotel)}
+          </div>
+
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between gap-3">
+              <span class="text-slate-400">Current Plan</span>
+              <span class="font-medium text-right">${safeText(getCurrentPlan(hotel))}</span>
+            </div>
+
+            <div class="flex justify-between gap-3">
+              <span class="text-slate-400">Valid Till</span>
+              <span class="font-medium text-right">${formatDate(hotel.validTill)}</span>
+            </div>
+
+            <div class="flex justify-between gap-3">
+              <span class="text-slate-400">Upcoming Plan</span>
+              <span class="font-medium text-right">${safeText(getUpcomingPlan(hotel))}</span>
+            </div>
+          </div>
+        `;
+
+        hotelList.appendChild(card);
+      });
+    }
+
+    function openHotelModal(hotel) {
+      const modal = document.getElementById("hotelModal");
+      const modalContent = document.getElementById("modalContent");
+
+      modalContent.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Hotel Name</p>
+            <p class="text-base font-semibold">${safeText(hotel.hotelName || hotel.name || hotel.id)}</p>
+          </div>
+
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Hotel Slug</p>
+            <p class="text-base font-semibold break-all">${safeText(hotel.hotelSlug || hotel.id)}</p>
+          </div>
+
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Owner Name</p>
+            <p class="text-base font-semibold">${safeText(hotel.ownerName || hotel.fullName)}</p>
+          </div>
+
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Owner Email</p>
+            <p class="text-base font-semibold break-all">${safeText(hotel.ownerEmail || hotel.email)}</p>
+          </div>
+
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Phone</p>
+            <p class="text-base font-semibold">${safeText(hotel.phone)}</p>
+          </div>
+
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Subscription Status</p>
+            <div class="mt-1">${getStatusBadge(hotel)}</div>
+          </div>
+
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Current Plan</p>
+            <p class="text-base font-semibold">${safeText(getCurrentPlan(hotel))}</p>
+          </div>
+
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Current Plan Expiry</p>
+            <p class="text-base font-semibold">${formatDate(hotel.validTill)}</p>
+          </div>
+
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Upcoming Plan</p>
+            <p class="text-base font-semibold">${safeText(getUpcomingPlan(hotel))}</p>
+          </div>
+
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Upcoming Plan Start</p>
+            <p class="text-base font-semibold">${formatDate(hotel.upcomingPlanStartDate)}</p>
+          </div>
+
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4 sm:col-span-2">
+            <p class="text-xs uppercase tracking-wide text-slate-400 mb-1">Upcoming Plan Expiry</p>
+            <p class="text-base font-semibold">${formatDate(hotel.upcomingPlanValidTill)}</p>
+          </div>
+          <div class="rounded-2xl bg-slate-800 border border-white/10 p-4 sm:col-span-2">
+<p class="text-xs uppercase tracking-wide text-slate-400 mb-1">
+Hotel Lifetime Revenue
+</p>
+
+<p class="text-lg font-bold text-orange-400">
+${safeText(hotel.totalRevenue || "₹0")}
+</p>
+</div>
+        </div>
+      `;
+
+      modal.classList.remove("hidden");
+    }
+
+    function closeHotelModal() {
+      document.getElementById("hotelModal").classList.add("hidden");
+    }
+
+    function applySearch() {
+      const value = document.getElementById("searchInput").value.trim().toLowerCase();
+
+      if (!value) {
+        renderHotels(allHotels);
+        return;
+      }
+
+      const filtered = allHotels.filter((hotel) => {
+        const hotelName = String(hotel.hotelName || hotel.name || "").toLowerCase();
+        const hotelSlug = String(hotel.hotelSlug || hotel.id || "").toLowerCase();
+        const ownerEmail = String(hotel.ownerEmail || hotel.email || "").toLowerCase();
+
+        return (
+          hotelName.includes(value) ||
+          hotelSlug.includes(value) ||
+          ownerEmail.includes(value)
+        );
+      });
+
+      renderHotels(filtered);
+    }
+
+    async function loadDashboard(filter="all") {
+      const statusBox = document.getElementById("statusBox");
+      const dashboardContent = document.getElementById("dashboardContent");
+
+      try {
+        const sessionId = localStorage.getItem("superAdminSessionId") || "";
+
+const res = await fetch("/api/super-admin/dashboard-data", {
+  method: "GET",
+  credentials: "include",
+  headers: {
+    "x-super-admin-session": sessionId
+  }
+});
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            window.location.href = "/super-admin/login";
+            return;
+          }
+
+          statusBox.innerHTML = `
+            <div class="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-300">
+              ${data.error || "Dashboard load failed"}
+            </div>
+          `;
+          return;
+        }
+
+        document.getElementById("totalHotels").innerText = data.totalHotels || 0;
+document.getElementById("activeSubscriptions").innerText = data.activeSubscriptions || 0;
+document.getElementById("upcomingPlans").innerText = data.upcomingPlans || 0;
+document.getElementById("expiredHotels").innerText = data.expiredHotels || 0;
+document.getElementById("platformRevenue").innerText = formatMoneyFromPaise(data.totalRevenue || 0);
+document.getElementById("totalPaidOrders").innerText = `${data.totalPaidOrders || 0} paid orders`;
+if(data.revenueByPlan){
+
+document.getElementById("revStarterMonthly").innerText =
+formatMoneyFromPaise(data.revenueByPlan.starter_monthly || 0)
+
+document.getElementById("revStarterYearly").innerText =
+formatMoneyFromPaise(data.revenueByPlan.starter_yearly || 0)
+
+document.getElementById("revProMonthly").innerText =
+formatMoneyFromPaise(data.revenueByPlan.pro_monthly || 0)
+
+document.getElementById("revProYearly").innerText =
+formatMoneyFromPaise(data.revenueByPlan.pro_yearly || 0)
+
+}
+        allHotels = Array.isArray(data.hotels) ? data.hotels : [];
+        renderHotels(allHotels);
+
+        statusBox.classList.add("hidden");
+        dashboardContent.classList.remove("hidden");
+
+        console.log("Dashboard data:", data);
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+        statusBox.innerHTML = `
+          <div class="rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-300">
+            Dashboard load error
+          </div>
+        `;
+      }
+    }
+
+    async function logout() {
+      try {
+        const sessionId = localStorage.getItem("superAdminSessionId") || "";
+
+await fetch("/api/super-admin/logout", {
+  method: "GET",
+  credentials: "include",
+  headers: {
+    "x-super-admin-session": sessionId
+  }
+});
+
+localStorage.removeItem("superAdminSessionId");
+      } catch (err) {
+        console.error("Logout error:", err);
+      }
+
+      window.location.href = "/super-admin/login";
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+    document.getElementById("searchInput").addEventListener("input", applySearch);
+    document.getElementById("closeModalBtn").addEventListener("click", closeHotelModal);
+    document.getElementById("modalBackdrop").addEventListener("click", closeHotelModal);
+
+    document.querySelectorAll(".filterBtn").forEach(btn=>{
+
+btn.addEventListener("click",()=>{
+
+document.querySelectorAll(".filterBtn")
+.forEach(b=>b.classList.remove("bg-orange-500"))
+
+btn.classList.add("bg-orange-500")
+
+const filter = btn.dataset.filter
+
+loadDashboard(filter)
+
+})
+
+})
+
+    loadDashboard();
+  </script>
+</body>
+</html>
